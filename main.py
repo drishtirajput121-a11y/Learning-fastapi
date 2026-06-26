@@ -7,11 +7,11 @@ def greet():
     return "I love you!!!"
 
 products=[
-    Product(1,"Laptop","This is a laptop",1000.0,10),
-    Product(2,"Mobile","This is a mobile",500.0,20),
-    Product(3,"Tablet","This is a tablet",300.0,15),
-    Product(4,"Headphones","This is a headphones",100.0,30),
-    Product(5,"Smartwatch","This is a smartwatch",200.0,25)
+    Product(id=1,name="Laptop",description="This is a laptop",price=1000.0,quantity=10),
+    Product(id=2,name="Mobile",description="This is a mobile",price=500.0,quantity=20),
+    Product(id=3,name="Tablet",description="This is a tablet",price=300.0,quantity=15),
+    Product(id=4,name="Headphones",description="This is a headphones",price=100.0,quantity=30),
+    Product(id=5,name="Smartwatch",description="This is a smartwatch",price=200.0,quantity=25)
 ]
 
 @app.get("/product")
