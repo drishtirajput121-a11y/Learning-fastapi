@@ -17,4 +17,6 @@ products=[
 @app.get("/product")
 def all_product():
     return products
-
+@app.get("/product/{id}")
+def get_product(id: int):
+    return products[id-1]
