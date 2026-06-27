@@ -1,7 +1,7 @@
+# schemas.py or models.py
 from pydantic import BaseModel
 
-class Product(BaseModel):
-    id: int
+class ProductSchema(BaseModel):
     name: str
     description: str
     price: float

@@ -1,47 +1,63 @@
 from fastapi import FastAPI
-from models import Product
+from database import session, engine
+from database_models import Base, Product
+from schemas import ProductSchema       
+from fastapi.middleware.cors import CORSMiddleware
+app = FastAPI()
+Base.metadata.create_all(bind=engine)
 
-app= FastAPI()
 @app.get("/")
 def greet():
-    return "I love you!!!"
-
-products=[
-    Product(id=1,name="Laptop",description="This is a laptop",price=1000.0,quantity=10),
-    Product(id=2,name="Mobile",description="This is a mobile",price=500.0,quantity=20),
-    Product(id=3,name="Tablet",description="This is a tablet",price=300.0,quantity=15),
-    Product(id=4,name="Headphones",description="This is a headphones",price=100.0,quantity=30),
-    Product(id=5,name="Smartwatch",description="This is a smartwatch",price=200.0,quantity=25)
-]
+    return {"message": "I love you!!!"}
 
 @app.get("/product")
 def all_product():
-    return products
+    return session.query(Product).all()
+
 @app.get("/product/{id}")
 def get_product(id: int):
-    for product in products:
-        if product.id == id:
-            return product
-        return {"message": "Product not found"}
-    
+    product = session.query(Product).filter(Product.id == id).first()
+    if product:
+        return product
+    return {"message": "Product not found"}
+
 @app.post("/product")
-def add_product(product: Product):
-    products.append(product)
+def add_product(data: ProductSchema):   
+    product = Product(
+        name=data.name,
+        description=data.description,
+        price=data.price,
+        quantity=data.quantity
+    )
+    session.add(product)
+    session.commit()
+    session.refresh(product)
     return product
 
-@app.put("/product")
-def update_product(id:int,product:Product):
-    for i in range(len(products)):
-        if products[i].id==id :
-            products[i]=product
-            return "product added Successfully"
-        
-    return "No Product found"
+@app.put("/product/{id}")
+def update_product(id: int, data: ProductSchema):
+    product = session.query(Product).filter(Product.id == id).first()
+    if not product:
+        return {"message": "Product not found"}
+    product.name = data.name
+    product.description = data.description
+    product.price = data.price
+    product.quantity = data.quantity
+    session.commit()
+    return product
 
-@app.delete("/product")
-def delete_product(id:int):
-    for i in range(len(products)):
-        if products[i].id==id:
-            del products[i]
-            return "deleted Successfully"
-    return "No product found"
+@app.delete("/product/{id}")
+def delete_product(id: int):
+    product = session.query(Product).filter(Product.id == id).first()
+    if not product:
+        return {"message": "Product not found"}
+    session.delete(product)
+    session.commit()
+    return {"message": "Deleted Successfully"}
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
